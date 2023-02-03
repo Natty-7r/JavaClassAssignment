@@ -19,6 +19,13 @@ import java.util.Collection;
 
 public class StudentData {
     static  int currentButton  = 1;
+    static  String currentId;
+    Student studentSearched;
+    Student [] totalStudentsFound;
+    int foundStudentIndex ;
+    int totalStudents ;
+    TextField studIdInput;
+
 
     public  MenuBar studentMenu(Stage stage){
         // menu bar
@@ -95,7 +102,7 @@ public class StudentData {
             searchContainer.setSpacing(10);
             searchContainer.setAlignment(Pos.CENTER);
 
-            TextField studIdInput = new TextField();
+            studIdInput = new TextField();
             studIdInput.setPrefWidth(420);
             studIdInput.setPromptText("Student ID");
             studIdInput.setStyle("" +
@@ -120,24 +127,47 @@ public class StudentData {
 
                 }
                 else {
-                    Student student = Database.searchStudentById(idInput);
-                    if ((student.studId).isEmpty()) {
+                    Student [] studentList =  Database.getStudentsList(0);
+                    totalStudents =  studentList.length;
+
+                    boolean studentFound =  false;
+                    int index = 0;
+                    if (studentList.length==0) {
+                        errorMessage.setText("STUDENT LIST IS EMPTY !");
+                        searchError.setVisible(true);
+                        searchResult.setVisible(false);
+
+                    }
+
+                    else {
+                        totalStudentsFound =  studentList;
+                        for(Student stud : studentList){
+                            if(stud.studId.equals(idInput)){
+                                studentFound =  true;
+                                studentSearched=  stud;
+                                foundStudentIndex =  index;
+                            }
+                            index++;
+                        }
+
+                     if (!studentFound) {
                         errorMessage.setText("NO STUDENT ASSOCIATED WITH THE ID !");
                         searchError.setVisible(true);
                         searchResult.setVisible(false);
 
-                    } else if (!student.studId.isEmpty()) {
+                    } else if (studentFound) {
+                        currentId =  idInput;
                         studentResultData.setText("" +
-                                "ID : " + student.studId +
-                                "\nUSERNAME : " + student.username +
-                                " \nGPA : " + student.gpa
+                                "ID : " + studentSearched.studId +
+                                "\nUSERNAME : " + studentSearched.username +
+                                " \nGPA : " + studentSearched.gpa
                         );
 
                         searchError.setVisible(false);
                         searchResult.setVisible(true);
 
 
-                    }
+                    }}
                 }
 
             });
@@ -184,19 +214,69 @@ public class StudentData {
         HBox buttonsContainer =  new HBox();
         {
             Button backBtn =  new Button(" <- Previous");
+            backBtn.setTextFill(Color.WHITE);
             backBtn.setStyle("" +
                     "-fx-font-size:16px;" +
                     "-fx-padding:4px 16px;" +
                     "-fx-background-color:purple;"
             );
+            backBtn.setOnAction(e->{
+
+
+                if (foundStudentIndex==0) {
+                    errorMessage.setText("NO STUDENT FOUND BEFORE THE CURRENT  !");
+                    searchError.setVisible(true);
+                    searchResult.setVisible(false);
+
+                }
+                else {
+                    studentSearched = totalStudentsFound[--foundStudentIndex];
+                     studIdInput.setText(studentSearched.studId);
+                    studentResultData.setText("" +
+                                "ID : " + studentSearched.studId +
+                                "\nUSERNAME : " + studentSearched.username +
+                                " \nGPA : " + studentSearched.gpa
+                        );
+
+                        searchError.setVisible(false);
+                        searchResult.setVisible(true);
+                }
+
+
+            });
 
 
             Button nextBtn =  new Button("Next ->");
+            nextBtn.setTextFill(Color.WHITE);
             nextBtn.setStyle("" +
                     "-fx-font-size:16px;" +
                     "-fx-padding:4px 16px;" +
                     "-fx-background-color:purple;"
             );
+            nextBtn.setOnAction(e->{
+
+
+                if (foundStudentIndex==totalStudents) {
+                    errorMessage.setText("NO STUDENT FOUND AFTER THE CURRENT  !");
+                    searchError.setVisible(true);
+                    searchResult.setVisible(false);
+
+                }
+                else {
+                    studentSearched = totalStudentsFound[++foundStudentIndex];
+                    studIdInput.setText(studentSearched.studId);
+                    studentResultData.setText("" +
+                            "ID : " + studentSearched.studId +
+                            "\nUSERNAME : " + studentSearched.username +
+                            " \nGPA : " + studentSearched.gpa
+                    );
+
+                    searchError.setVisible(false);
+                    searchResult.setVisible(true);
+                }
+
+
+            });
 
             buttonsContainer.setAlignment(Pos.CENTER);
             buttonsContainer.setSpacing(20);

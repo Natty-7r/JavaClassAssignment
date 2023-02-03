@@ -134,13 +134,22 @@ static   Connection connection = null;
 
     }
     static public Student[] getStudentsList(int listSize){
+
         Student student;
-        Student[]  studentsList  = new Student[listSize];
+        Student[]  studentsList = new Student[0];
         int listIndex =  0;
+        int studentsListLength = 0;
         try {
             String selectionString = "select * from students";
             Statement selectionStatement = connection.createStatement();
             ResultSet listSelected = selectionStatement.executeQuery(selectionString);
+
+            while (listSelected.next()){
+                studentsListLength++;
+            }
+            listSelected = selectionStatement.executeQuery(selectionString);
+           studentsList  = new Student[studentsListLength];
+
             while (listSelected.next()){
                 student =  new Student(listSelected.getString("studId"),listSelected.getString("username"),listSelected.getDouble("gpa"));
                 studentsList[listIndex++] =  student;
